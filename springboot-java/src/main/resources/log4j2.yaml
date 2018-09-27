@@ -1,0 +1,105 @@
+Configuration:
+    status: debug
+    monitorInterval: 600
+    Properties:
+        Property:
+            -
+                name: log.level
+                value: INFO
+            -
+                name: log.home
+                value: '/opt/logs/pet-buddy-server'
+            -
+                name: spring.application.name
+                value: pet-buddy
+            -
+                name: server.port
+                value: 7600
+    Appenders:
+        Console:
+            name: Console
+            PatternLayout:
+                Pattern: '%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{1.}:%L - %msg%n}{%throwable{short.fileName}}{FATAL=white,ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}'
+            target: SYSTEM_OUT
+        File:
+            name: File_Appender
+            fileName: 'logs/${spring.application.name}_${sys:server.port}_out.log'
+            append: true
+            PatternLayout:
+                Pattern: '%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{1.}:%L - %msg%n}{%throwable{short.fileName}}{FATAL=white,ERROR=red, WARN=blue, INFO=black, DEBUG=green, TRACE=blue}'
+        RollingFile:
+            -
+                name: server_Appender
+                fileName: '${sys:log.home}/pet-buddy-server_${sys:server.port}.log'
+                filePattern: '${sys:log.home}/pet-buddy-server_${sys:server.port}-%i.log.%d{yyyy-MM-dd}'
+                PatternLayout:
+                    pattern: '%msg'
+                Policies:
+                    SizeBasedTriggeringPolicy:
+                        size: '2048 M'
+                DefaultRollOverStrategy:
+                    max: 10
+                ThresholdFilter:
+                    -
+                        level: DEBUG
+                        onMatch: ACCEPT
+                        onMismatch: DENY
+            -
+                name: log_Appender
+                fileName: '${sys:log.home}/pet-buddy-log_${sys:server.port}.log'
+                filePattern: '${sys:log.home}/pet-buddy-log_${sys:server.port}-%i.log.%d{yyyy-MM-dd}'
+                PatternLayout:
+                    pattern: '%msg'
+                Policies:
+                    SizeBasedTriggeringPolicy:
+                        size: '2048 M'
+                DefaultRollOverStrategy:
+                    max: 10
+                ThresholdFilter:
+                    -
+                        level: DEBUG
+                        onMatch: ACCEPT
+                        onMismatch: DENY
+    Loggers:
+        Root:
+            AppenderRef:
+                -
+                    ref: Console
+                -
+                    ref: File_Appender
+        AsyncLogger:
+            -
+                name: com.zhexinit.odo.log.service.SignLogService
+                level: debug
+                includeLocation: true
+                additivity: true
+                AppenderRef:
+                    -
+                        ref: server_Appender
+            -
+                name: com.zhexinit.odo.log.service.SignLogService2
+                level: debug
+                includeLocation: true
+                additivity: true
+                AppenderRef:
+                    -
+                        ref: log_Appender
+        logger:
+            -
+                name: org.springframework
+                level: WARN
+            -
+                name: com.zhexinit.odo.app
+                level: '${sys:log.level}'
+            -
+                name: com.zhexinit.odo.log
+                level: '${sys:log.level}'
+            -
+                name: com.zhexinit.odo.storm
+                level: '${sys:log.level}'
+            -
+                name: com.zhexinit.odo.log.service
+                level: DEBUG
+            -
+                name: com.zhexinit.odo.app.dao
+                level: DEBUG
